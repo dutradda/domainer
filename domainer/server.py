@@ -1,24 +1,25 @@
 import six
-
-if six.PY34:
-    from connexion.apps.aiohttp_app import AioHttpApp as DefaultApp
-else:
-    from connexion.apps.flask_app import FlaskApp as DefaultApp
+from domainer.constants import APP_CLS
 
 
 class DomainServer(object):
 
-    def __init__(self, domain, app_cls=None, app_kwargs={}, api_kwargs={}):
-        if app_cls is None:
-            app_cls = DefaultApp
-            if six.PY34:
-                app_kwargs['only_one_api'] = True
+    _app_cls = None
 
-        spec = domain.get_swagger_spec()
-
-        self._import_name = domain.__module__
-        self._app = app_cls(self._import_name, **app_kwargs)
+    def __init__(self, spec, domain, app_kwargs={}, api_kwargs={}):
+        self.domain = domain
+        self._set_app(**app_kwargs)
         self._api = self._app.add_api(spec, **api_kwargs)
 
+    def _set_app(self, **kwargs):
+        if six.PY34:  # pragma: 2.7 no cover
+            kwargs['only_one_api'] = True
+
+        import_name = self.domain.__module__
+        self._app = APP_CLS(import_name, **kwargs)
+
     def run(self, **kwargs):
+        if self.domain:
+            self.domain.configure_environment()
+
         self._app.run(**kwargs)
