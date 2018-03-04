@@ -1,4 +1,5 @@
 import six
+
 from domainer.constants import APP_CLS
 
 
