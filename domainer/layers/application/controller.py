@@ -1,0 +1,4 @@
+
+
+class GenericController(object):
+    pass

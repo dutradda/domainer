@@ -1,0 +1,55 @@
+{
+  "swagger":"2.0",
+  "info":{
+    "version": "0.0.1",
+    "title": "Store Example"
+  },
+  "paths": {
+    "/products": {
+      "get": {
+        "operationId": "domain.store.products.get",
+        "responses": {
+          "200": {
+            "description": "All the products available the in the store.",
+            "schema": {
+              "type": "array",
+              "items": {"$ref": "#/definitions/Product"}
+            }
+          }
+        }
+      },
+      "post": {
+        "parameters": [{
+          "in": "body",
+          "name": "product",
+          "schema": {"$ref": "#/definitions/Product"}
+        }],
+        "operationId": "domain.store.products.insert",
+        "responses": {
+          "201": {
+            "description": "Product created"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sku", "name", "value"],
+      "properties": {
+        "sku": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 8
+        },
+        "name": {"type": "string"},
+        "value": {
+          "type": "number",
+          "minimum": 0.01
+        }
+      }
+    }
+  }
+}

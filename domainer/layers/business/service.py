@@ -1,0 +1,4 @@
+
+
+class GenerericService(object):
+    pass

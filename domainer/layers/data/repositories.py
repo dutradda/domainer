@@ -1,0 +1,4 @@
+
+
+class GenerericRepository(object):
+    pass

@@ -22,7 +22,7 @@ def domain_server_cls(default_app_cls_mock):
 
 @pytest.fixture
 def domain_mock():
-    domain = Domain('', mock.MagicMock())
+    domain = Domain(mock.MagicMock())
     mock_ = mock.MagicMock(wraps=domain)
     return mock_
 
@@ -35,7 +35,7 @@ def flask_app_cls_mock():
 
 
 def test_run(domain_server_cls, default_app_cls_mock, domain_mock):
-    server = domain_server_cls('', domain_mock)
+    server = domain_server_cls(domain_mock)
     server.run()
     logger = logging.getLogger('connexion.aiohttp_app')
 

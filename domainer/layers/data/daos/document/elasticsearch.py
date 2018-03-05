@@ -1,0 +1,4 @@
+
+
+class ElasticSearchDao(object):
+    pass

@@ -1,0 +1,4 @@
+
+
+class RedisDao(object):
+    pass
