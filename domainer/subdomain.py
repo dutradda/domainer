@@ -1,7 +1,7 @@
 from six import iteritems
 
 from domainer.layers.application.controller import GenericController
-from domainer.layers.business.service import GenerericService
+from domainer.layers.business.service import GenericService
 from domainer.layers.data.repositories import GenerericRepository
 from domainer.exceptions import DomainerError
 
@@ -41,9 +41,9 @@ class Subdomain(object):
 
     def _set_services(self, services):
         for service in services:
-            service_name = service.get_name()
             service_instance = service(self._daos, self._active_records,
                                        self._repositories)
+            service_name = service_instance.get_name()
             self.s[service_name] = service_instance
 
     def _set_controller(self, controller_cls):
@@ -60,11 +60,11 @@ class Subdomain(object):
     def _discover_controller(self):
         if not self.services:
             if self._repositories:
-                self._set_services([GenerericService])
+                self._set_services([GenericService])
 
             elif self._active_records:
                 self._set_repositories([GenerericRepository])
-                self._set_services([GenerericService])
+                self._set_services([GenericService])
 
         return self._build_controller(GenericController)
 

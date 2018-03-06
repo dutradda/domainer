@@ -1,15 +1,17 @@
-
+from domainer.layers.data.daos.relational import RelationalDao
+from domainer.layers.data.daos.key_value.redis import RedisDao
+from domainer.layers.data.daos.document.elasticsearch import ElasticSearchDao
 
 class DAOsFactory(object):
 
     @classmethod
     def make_relational(cls, url):
-        pass
+        return RelationalDao()
 
     @classmethod
     def make_key_value(cls, url):
-        pass
+        return RedisDao()
 
     @classmethod
     def make_document(cls, url):
-        pass
+        return ElasticSearchDao()

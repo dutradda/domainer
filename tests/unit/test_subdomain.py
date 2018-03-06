@@ -3,13 +3,17 @@ import pytest
 
 from domainer.exceptions import DomainerError
 from domainer.subdomain import Subdomain
+from domainer.layers.business.service import BaseService
 
 
 def test_create_controllers_only_with_services():
-    service = mock.MagicMock(name='core_service')
-    subdomain = Subdomain('core', services=[service])
-    controller = list(subdomain.controllers)[0]
-    assert controller.services == {'core_service': service}
+    class MyService(BaseService):
+        pass
+
+    subdomain = Subdomain('core', services=[MyService])
+    assert len(subdomain.controller.services) == 1
+    assert isinstance(subdomain.controller.services['MyService'],
+                      MyService)
 
 
 def test_error_insuficient_arguments():
