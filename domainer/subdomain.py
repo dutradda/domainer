@@ -1,49 +1,56 @@
 from six import iteritems
 
-from domainer.layers.application.controller import GenericController
-from domainer.layers.business.service import GenericService
-from domainer.layers.data.repositories import GenerericRepository
 from domainer.exceptions import DomainerError
+from domainer.layers.application.controller import GenericController
+from domainer.layers.business.service import BaseService
+from domainer.layers.data.repositories import BaseRepository
 
 
 class Subdomain(object):
 
     def __init__(self, name, services=set(), active_records=set(),
-                 repositories=set(), controller=None, daos=None):
+                 repositories=set(), controller=None, daos={}):
         if (not services and not active_records and 
                 not repositories and controller is None):
             raise DomainerError("At least one of these arguments must be "
                                 "setted: 'services', 'active_records', "
                                 "'repositories' or 'controller'.")
-        if daos is None:
-            daos = {}
-        self._daos = daos
+
         self._all_subdomains = {}
-        self._active_records = {}
-        self._repositories = {}
-        self.services = self.s = {}
+        self.name = name
+        self._set_daos(daos)
         self._set_active_records(active_records)
         self._set_repositories(repositories)
         self._set_services(services)
         self._set_controller(controller)
 
+    def _set_daos(self, daos):
+        self._daos = {}
+        self._daos.update(daos)
+
     def _set_active_records(self, active_records):
+        self._active_records = {}
+
         for active_record in active_records:
             active_record_name = active_record.get_name()
             active_record_instance = active_record(self._daos)
             self._active_records[active_record_name] = active_record_instance
 
     def _set_repositories(self, repositories):
+        self._repositories = {}
+
         for repository in repositories:
             repository_name = repository.get_name()
             repository_instance = repository(self._daos, self._active_records)
             self._repositories[repository_name] = repository_instance
 
     def _set_services(self, services):
+        self.services = self.s = {}
+
         for service in services:
+            service_name = service.get_name()
             service_instance = service(self._daos, self._active_records,
                                        self._repositories)
-            service_name = service_instance.get_name()
             self.s[service_name] = service_instance
 
     def _set_controller(self, controller_cls):
@@ -60,11 +67,14 @@ class Subdomain(object):
     def _discover_controller(self):
         if not self.services:
             if self._repositories:
-                self._set_services([GenericService])
+                service_cls = BaseService.new_cls(self.name)
+                self._set_services([service_cls])
 
             elif self._active_records:
-                self._set_repositories([GenerericRepository])
-                self._set_services([GenericService])
+                repository_cls = BaseRepository.new_cls(self.name)
+                service_cls = BaseService.new_cls(self.name)
+                self._set_repositories([repository_cls])
+                self._set_services([service_cls])
 
         return self._build_controller(GenericController)
 

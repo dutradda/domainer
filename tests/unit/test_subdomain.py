@@ -22,15 +22,16 @@ def test_error_insuficient_arguments():
 
     assert exc_info.value.args == (
         "At least one of these arguments must be "
-        "setted: 'services', 'active_records' or "
-        "'controllers'.",
+        "setted: 'services', 'active_records', "
+        "'repositories' or 'controller'.",
     )
 
 
 def test_create_controllers_only_with_active_records():
     active_record = mock.MagicMock(name='core_active_record')
     subdomain = Subdomain('core', active_records=[active_record])
-    controller = list(subdomain.controllers)[0]
+    controller = subdomain.controller
+    print(controller.services)
     assert controller.services['core_active_record_service'] \
            .active_records['core_active_record'] == active_record
 
