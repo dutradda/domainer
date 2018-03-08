@@ -1,9 +1,8 @@
 import mock
-
-from domainer.layers.data.daos.factory import DAOsFactory
-from domainer.layers.data.daos.relational import RelationalDao
-from domainer.layers.data.daos.key_value.redis import RedisDao
 from domainer.layers.data.daos.document.elasticsearch import ElasticSearchDao
+from domainer.layers.data.daos.factory import DAOsFactory
+from domainer.layers.data.daos.key_value.redis import RedisDao
+from domainer.layers.data.daos.relational import RelationalDao
 
 
 def test_factory_make_relational():

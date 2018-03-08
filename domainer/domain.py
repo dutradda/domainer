@@ -11,7 +11,7 @@ class Domain(object):
         self.all_subdomains = {}
         self._set_all_subdomains()
         if daos is not None:
-            self._set_daos(daos)
+            self.set_daos(daos)
         self._set_attributes()
 
     def _set_all_subdomains(self):
@@ -22,7 +22,10 @@ class Domain(object):
         for subdomain in all_subdomains:
             self.all_subdomains[subdomain.name] = subdomain
 
-    def _set_daos(self, daos):
+        for subdomain in all_subdomains:
+            subdomain.set_subdomains(self.all_subdomains)
+
+    def set_daos(self, daos):
         for subdomain in itervalues(self.all_subdomains):
             subdomain.update_daos(daos)
 

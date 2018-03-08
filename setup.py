@@ -39,8 +39,7 @@ class PyTest(TestCommand):
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.cov = None
-        self.pytest_args = ['--cov', 'domainer', '--cov-report',
-                            'term-missing', '-v']
+        self.pytest_args = ['--cov', 'domainer', '-vv']
 
         if sys.version_info[0] < 3:
             self.pytest_args.append('--cov-config=py2-coveragerc')
@@ -54,6 +53,9 @@ class PyTest(TestCommand):
         TestCommand.finalize_options(self)
         if self.cov_html:
             self.pytest_args.extend(['--cov-report', 'html'])
+        else:
+            self.pytest_args.extend(['--cov-report', 'term-missing'])
+
         self.pytest_args.extend(['tests'])
 
     def run_tests(self):

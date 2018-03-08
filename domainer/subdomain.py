@@ -10,7 +10,7 @@ class Subdomain(object):
 
     def __init__(self, name, services=set(), active_records=set(),
                  repositories=set(), controller=None, daos={}):
-        if (not services and not active_records and 
+        if (not services and not active_records and
                 not repositories and controller is None):
             raise DomainerError("At least one of these arguments must be "
                                 "setted: 'services', 'active_records', "
@@ -38,24 +38,40 @@ class Subdomain(object):
 
     def _set_repositories(self, repositories):
         self._repositories = {}
-
         for repository in repositories:
-            repository_name = repository.get_name()
-            repository_instance = repository(self._daos, self._active_records)
-            self._repositories[repository_name] = repository_instance
+            self._set_repository(repository)
+
+    def _set_repository(self, repository):
+        repository_name = repository.get_name()
+        repository_instance = repository(self._daos, self._active_records)
+        self._repositories[repository_name] = repository_instance
 
     def _set_services(self, services):
         self.services = self.s = {}
 
         for service in services:
-            service_name = service.get_name()
-            service_instance = service(self._daos, self._active_records,
-                                       self._repositories)
-            self.s[service_name] = service_instance
+            self._set_service(service)
+
+        else:
+            if self._repositories:
+                service_cls = BaseService.new_cls(self.name)
+                self._set_service(service_cls)
+
+            elif self._active_records:
+                repository_cls = BaseRepository.new_cls(self.name)
+                service_cls = BaseService.new_cls(self.name)
+                self._set_repository(repository_cls)
+                self._set_service(service_cls)
+
+    def _set_service(self, service):
+        service_name = service.get_name()
+        service_instance = service(self._daos, self._active_records,
+                                   self._repositories)
+        self.services[service_name] = service_instance
 
     def _set_controller(self, controller_cls):
         if controller_cls is None:
-            controller = self._discover_controller()
+            controller = self._build_controller(GenericController)
         else:
             controller = self._build_controller(controller_cls)
 
@@ -63,20 +79,6 @@ class Subdomain(object):
 
     def _build_controller(self, controller_cls):
         return controller_cls(self.services, self._all_subdomains)
-
-    def _discover_controller(self):
-        if not self.services:
-            if self._repositories:
-                service_cls = BaseService.new_cls(self.name)
-                self._set_services([service_cls])
-
-            elif self._active_records:
-                repository_cls = BaseRepository.new_cls(self.name)
-                service_cls = BaseService.new_cls(self.name)
-                self._set_repositories([repository_cls])
-                self._set_services([service_cls])
-
-        return self._build_controller(GenericController)
 
     def update_daos(self, new_daos):
         for k, v in iteritems(new_daos):
