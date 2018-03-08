@@ -20,7 +20,4 @@ class DomainServer(object):
         self._app = APP_CLS(import_name, **kwargs)
 
     def run(self, **kwargs):
-        if self.domain:
-            self.domain.configure_environment()
-
         self._app.run(**kwargs)

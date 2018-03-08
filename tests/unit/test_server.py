@@ -22,7 +22,9 @@ def domain_server_cls(default_app_cls_mock):
 
 @pytest.fixture
 def domain_mock():
-    domain = Domain('', mock.MagicMock())
+    subdomain = mock.MagicMock()
+    subdomain.name = 'test'
+    domain = Domain(subdomain)
     mock_ = mock.MagicMock(wraps=domain)
     return mock_
 
