@@ -1,5 +1,3 @@
-import types
-
 import six
 from connexion.apps.flask_app import FlaskApp
 from openapi21 import validate_spec
