@@ -9,4 +9,5 @@ install:
 script:
   - tox
 after_success:
-  - coveralls --config_file=coveralls-coveragerc
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then coveralls --config_file=py2-coveragerc; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '2.7' ]]; then coveralls --config_file=py3-coveragerc; fi
