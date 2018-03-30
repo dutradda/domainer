@@ -5,7 +5,7 @@ python:
   - "3.5"
   - "3.6"
 install:
-  - pip install "setuptools>=17.1" tox tox-travis coveralls
+  - pip install "setuptools>=17.1" tox tox-travis python-coveralls
 script:
   - tox
 after_success:
