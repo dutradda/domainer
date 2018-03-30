@@ -1,4 +1,3 @@
-import mock
 import pytest
 from domainer.exceptions import DomainerError
 from domainer.layers.application.controller import GenericController

@@ -1,21 +1,31 @@
-import logging
+import six
 
 import mock
 import pytest
-from domainer.constants import APP_CLS
 from domainer.domain import Domain
+from domainer.exceptions import DomainerError
+
+if six.PY34:
+    @pytest.fixture
+    def aiohttp_app_factory_mock(monkeypatch):
+        mock_ = mock.MagicMock()
+        monkeypatch.setattr('domainer.server.AioHttpAppFactory', mock_)
+        return mock_
+else:
+    @pytest.fixture
+    def aiohttp_app_factory_mock():
+        return mock.MagicMock()
 
 
 @pytest.fixture
-def default_app_cls_mock(monkeypatch):
-    mock_ = mock.MagicMock(wraps=APP_CLS)
-    mock_.return_value.run = mock.MagicMock()
-    monkeypatch.setattr('domainer.server.APP_CLS', mock_)
+def flask_app_factory_mock(monkeypatch):
+    mock_ = mock.MagicMock()
+    monkeypatch.setattr('domainer.server.FlaskAppFactory', mock_)
     return mock_
 
 
 @pytest.fixture
-def domain_server_cls(default_app_cls_mock):
+def domain_server_cls(aiohttp_app_factory_mock, flask_app_factory_mock):
     from domainer.server import DomainServer
     return DomainServer
 
@@ -29,16 +39,35 @@ def domain_mock():
     return mock_
 
 
-@pytest.fixture
-def flask_app_cls_mock():
-    mock_ = mock.MagicMock(wraps=FlaskApp)
-    mock_.return_value.run = mock.MagicMock()
-    return mock_
+def test_init_with_app_factory_flask_cls(domain_server_cls, aiohttp_app_factory_mock,
+                                         flask_app_factory_mock, domain_mock):
+    assert domain_server_cls('', domain_mock, app_factory=flask_app_factory_mock)
 
 
-def test_run(domain_server_cls, default_app_cls_mock, domain_mock):
-    server = domain_server_cls('', domain_mock)
-    server.run()
-    logger = logging.getLogger('connexion.aiohttp_app')
+def test_init_with_app_factory_flask(domain_server_cls, aiohttp_app_factory_mock,
+                                     flask_app_factory_mock, domain_mock):
+    assert domain_server_cls('', domain_mock, app_factory='flask')
 
-    assert default_app_cls_mock.return_value.run.call_args_list == [mock.call()]
+
+if six.PY34:
+    def test_init_with_app_factory_aiohttp(domain_server_cls, aiohttp_app_factory_mock,
+                                           flask_app_factory_mock, domain_mock):
+        assert domain_server_cls('', domain_mock, app_factory='aiohttp')
+
+    def test_run(domain_server_cls, aiohttp_app_factory_mock, domain_mock):
+        server = domain_server_cls('', domain_mock)
+        server.run()
+
+        assert aiohttp_app_factory_mock.make.return_value.run.call_args_list == [mock.call()]
+
+else:
+    def test_init_error_with_app_factory_aiohttp(domain_server_cls, flask_app_factory_mock,
+                                                 domain_mock):
+        with pytest.raises(DomainerError):
+            domain_server_cls('', domain_mock, app_factory='aiohttp')
+
+    def test_run(domain_server_cls, flask_app_factory_mock, domain_mock):
+        server = domain_server_cls('', domain_mock)
+        server.run()
+
+        assert flask_app_factory_mock.make.return_value.run.call_args_list == [mock.call()]

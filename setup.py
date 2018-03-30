@@ -9,7 +9,10 @@ import sys
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 version_f = open(os.path.join(root_dir, 'domainer/version.py'))
-install_requires = ['connexion-aiohttp>=1.4']
+install_requires = [
+    'connexion-aiohttp>=1.5',
+    'openapi21>=0.3.1'
+]
 
 if sys.version_info[0] > 2:
     install_requires.append('aiohttp==2.*')
@@ -34,27 +37,35 @@ long_description = ''''''
 
 class PyTest(TestCommand):
 
-    user_options = [('cov-html=', None, 'Generate junit html report')]
+    user_options = [
+        ('cov-html=', None, 'Generate html report'),
+        ('filter=', None, "Pytest setence to filter (see pytest '-k' option)"),
+        # ('vars=', None, 'Pytest external variables file')
+    ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
-        self.cov = None
-        self.pytest_args = ['--cov', 'domainer', '-vv']
+        self.pytest_args = ['--cov', 'domainer', '-xvv']
+        self.cov_html = False
+        self.filter = False
+        # self.vars = 'pytest-vars.json'
 
         if sys.version_info[0] < 3:
             self.pytest_args.append('--cov-config=py2-coveragerc')
-            self.pytest_args.append('--ignore=tests/aiohttp')
         else:
             self.pytest_args.append('--cov-config=py3-coveragerc')
 
-        self.cov_html = False
-
     def finalize_options(self):
         TestCommand.finalize_options(self)
+        # self.pytest_args.extend(['--variables', self.vars])
+
         if self.cov_html:
             self.pytest_args.extend(['--cov-report', 'html'])
         else:
             self.pytest_args.extend(['--cov-report', 'term-missing'])
+
+        if self.filter:
+            self.pytest_args.extend(['-k', self.filter])
 
         self.pytest_args.extend(['tests'])
 

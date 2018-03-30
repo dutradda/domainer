@@ -1,4 +1,3 @@
-import mock
 from domainer.layers.data.daos.document.elasticsearch import ElasticSearchDao
 from domainer.layers.data.daos.factory import DAOsFactory
 from domainer.layers.data.daos.key_value.redis import RedisDao

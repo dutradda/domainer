@@ -9,4 +9,4 @@ install:
 script:
   - tox
 after_success:
-  - coveralls --config_file=coveralls-coveragerc
+  - coveralls
