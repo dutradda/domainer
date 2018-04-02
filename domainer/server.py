@@ -21,12 +21,12 @@ class DomainServer(object):
 
         elif app_factory == 'flask':
             app_factory = FlaskAppFactory
-        elif app_factory == 'aiohttp':  # pragma: 2.7 no cover
+        elif app_factory == 'aiohttp':
             if not six.PY34:  # pragma: 3 no cover
                 raise DomainerError("'aiohttp' app_factory just can be used "
                                     "with python >= 3.4")
 
-            app_factory = AioHttpAppFactory
+            app_factory = AioHttpAppFactory  # pragma: 2.7 no cover
 
         self.domain = domain
         self._set_app(app_factory, **app_kwargs)
